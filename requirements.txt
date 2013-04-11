@@ -1,3 +1,4 @@
 Django==1.5.1
 PIL==1.1.7
+gunicorn==0.17.2
 redis==2.7.2

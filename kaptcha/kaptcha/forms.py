@@ -44,7 +44,7 @@ class CaptchaForm(forms.Form):
         self.fields['captcha'].widget.text = hash
 
     text = forms.CharField()
-    key = forms.CharField()#widget=forms.HiddenInput)
+    key = forms.CharField(widget=forms.HiddenInput)
     captcha = forms.CharField(widget=CaptchaWidget(attrs={'autocomplete': 'off'}))
 
     def clean(self):
