@@ -24,7 +24,7 @@ class CaptchaWidget(forms.TextInput):
         return format_html(img + '<input{0} />', flatatt(final_attrs))
 
 
-captcha = redis.Redis()
+captcha = redis.from_url('redis://localhost:6379')
 
 def get_key():
     return ''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(20))
