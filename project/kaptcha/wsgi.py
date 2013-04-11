@@ -13,12 +13,16 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os
-
+import os,sys
+print os.path.dirname(os.path.abspath(__file__))
+sys.path.append('/Users/pk/projects/dns/kaptcha' )
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../kaptcha')
+print sys.path
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
 # mod_wsgi daemon mode with each site in its own daemon process, or use
 # os.environ["DJANGO_SETTINGS_MODULE"] = "kaptcha.settings"
+# os.environ.setdefault("PYTHONPATH", os.path.join(PROJECT_PATH, '/'))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kaptcha.settings")
 
 # This application object is used by any WSGI server configured to use this
