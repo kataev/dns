@@ -1,11 +1,9 @@
-from django.shortcuts import render
-import redis
+from django.shortcuts import render,redirect
 from forms import CaptchaForm
 
 def home(request):
     """index.html"""
-    form = CaptchaForm({'text':'asd','key':'asdasdasd','captcha':'qweqwrt'})
-    r = redis.Redis()
-    r.sadd('capcha','asdasd')
-    print r.sismember('capcha','asdasd')
+    form = CaptchaForm(request.POST or None)
+    if form.is_valid():
+        return redirect('/?s=1')
     return render(request,'index.html',{'form':form})
