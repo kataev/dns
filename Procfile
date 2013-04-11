@@ -1,1 +1,1 @@
-web: gunicorn kaptcha.kaptcha.wsgi
+web: cd project && gunicorn kaptcha.wsgi
