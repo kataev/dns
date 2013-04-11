@@ -14,11 +14,12 @@ class CaptchaWidget(forms.TextInput):
             # Only add the 'value' attribute if a value is non-empty.
             final_attrs['value'] = force_text(self._format_value(value))
         image = draw_b64_image(value)
-        img = '<img src="data:image/png;base64,{}"></img>'.format(image)
+        img = '<img src="data:image/png;base64,{}" style="display:block;clear:both;">'.format(image)
         print 'text'
         return format_html(img+'<input{0} />', flatatt(final_attrs))
 
 
 class CaptchaForm(forms.Form):
-    key = forms.CharField()
+    text = forms.CharField()
+    key = forms.CharField(widget=forms.HiddenInput)
     captcha = forms.CharField(widget=CaptchaWidget)

@@ -1,9 +1,11 @@
 from django.shortcuts import render
-from utils import draw_b64_image
-
+import redis
 from forms import CaptchaForm
 
 def home(request):
     """index.html"""
-    form = CaptchaForm({'key':'asdasdasd','captcha':'qweqwrt'})
+    form = CaptchaForm({'text':'asd','key':'asdasdasd','captcha':'qweqwrt'})
+    r = redis.Redis()
+    r.sadd('capcha','asdasd')
+    print r.sismember('capcha','asdasd')
     return render(request,'index.html',{'form':form})
