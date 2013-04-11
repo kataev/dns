@@ -1,1 +1,1 @@
-web: gunicorn dns.wsgi
+web: gunicorn kaptcha.kaptcha.wsgi
