@@ -6,4 +6,4 @@ def home(request):
     form = CaptchaForm(request.POST or None)
     if form.is_valid():
         return redirect('/?s=1')
-    return render(request,'index.html',{'form':form})
+    return render(request,'index.html',{'form':form,'success':request.GET.has_key('s')})

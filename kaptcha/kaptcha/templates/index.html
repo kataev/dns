@@ -9,8 +9,13 @@
 </head>
 <body>
 <div class='container'>
-    <form accept-chartset='utf-8' method="POST" action="" class='form-horizontal' id="form">
+    <form accept-chartset='utf-8' method="POST" action="/" class='form-horizontal' id="form">
         <legend><h1>Kaptcha</h1></legend>
+        {% if success %}
+        <div class='alert-succes alert'>
+            Успех!
+        </div>
+        {% endif %}
         {% csrf_token %}
         {{ form }}
     </form>
