@@ -19,3 +19,14 @@ def draw_captcha(text):
     # Paste text image with the mask
     image.paste(textImg,(100,0),mask)
     return image
+
+import base64
+import StringIO
+
+def draw_b64_image(text):
+    image = draw_captcha(text)
+    output = StringIO.StringIO()
+    image.save(output, format='PNG')
+    content = base64.b64encode(output.getvalue())
+    output.close()
+    return content
