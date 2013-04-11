@@ -1,3 +1,4 @@
+import os
 import random
 import redis
 import binascii
@@ -23,8 +24,8 @@ class CaptchaWidget(forms.TextInput):
         img = '<img src="data:image/png;base64,{}" style="display:block;clear:both;">'.format(image)
         return format_html(img + '<input{0} />', flatatt(final_attrs))
 
-
-captcha = redis.from_url('redis://localhost:6379')
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+captcha = redis.from_url(redis_url)
 
 def get_key():
     return ''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(20))
