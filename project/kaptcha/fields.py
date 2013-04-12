@@ -22,7 +22,8 @@ class CaptchaWidget(forms.TextInput):
 
 class CaptchaField(forms.CharField):
     widget = CaptchaWidget
-
+    def bound_data(self, data, initial):
+        return initial
 
 class KeyField(forms.CharField):
     widget = forms.HiddenInput
