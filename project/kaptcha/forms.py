@@ -1,41 +1,32 @@
 import os
 import random
 import redis
-import binascii
-
-from utils import draw_b64_image
+from binascii import crc32
+from hashlib import sha256
 
 from django import forms
 
-from django.utils.encoding import force_text
-from django.utils.html import format_html
-from django.forms.util import flatatt
+from fields import CaptchaField
 
-
-class CaptchaWidget(forms.TextInput):
-    def render(self, name, value, attrs=None):
-        if value is None:
-            value = ''
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
-        if value != '':
-            # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_text(self._format_value(value))
-        image = draw_b64_image(self.text)
-        img = '<img src="data:image/png;base64,{}" style="display:block;clear:both;">'.format(image)
-        return format_html(img + '<input{0} />', flatatt(final_attrs))
 
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 captcha = redis.from_url(redis_url)
 
-def get_key():
-    return ''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(20))
+
+def get_key(length=20):
+    return ''.join(
+        random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(length))
+
+
+salt = get_key(40)
+
 
 def get_hash(key):
-    return str(binascii.crc32(key))[-6:]
+    return str(crc32(sha256(sha256(key).hexdigest() + salt).hexdigest()))[-6:]
 
 
 class CaptchaForm(forms.Form):
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data=None, *args, **kwargs):
         initial = kwargs.get('initial') or {}
         key = get_key()
         hash = get_hash(key)
@@ -46,24 +37,22 @@ class CaptchaForm(forms.Form):
 
     text = forms.CharField()
     key = forms.CharField(widget=forms.HiddenInput)
-    captcha = forms.CharField(widget=CaptchaWidget(attrs={'autocomplete': 'off'}))
+    captcha = CaptchaField()
 
     def clean(self):
         cleaned_data = super(CaptchaForm, self).clean()
-
-        key = cleaned_data.pop('key')
-        chash = cleaned_data.pop('captcha')
-
-        if captcha.sismember('used', key):
-            raise forms.ValidationError('Captcha fail: alredy used')
-
-        shash = get_hash(key)
-        if chash != shash:
-            key = get_key() # get new key and hash for new attempt
+        key = cleaned_data.pop('key', '')
+        chash = cleaned_data.pop('captcha', '')
+        if not self.errors:
+            if captcha.sismember('used', key):
+                raise forms.ValidationError('Captcha fail: alredy used')
             shash = get_hash(key)
-            self.fields['captcha'].widget.text = shash
-            self.data = dict(key=key,**cleaned_data)
-            raise forms.ValidationError('Captcha compare failed!')
-        else:
-            captcha.sadd('used', key)
+            if chash != shash:
+                key = get_key() # get new key and hash for new attempt
+                shash = get_hash(key)
+                self.fields['captcha'].widget.text = shash
+                self.data = dict(key=key, **cleaned_data)
+                raise forms.ValidationError('Captcha compare failed!')
+            else:
+                captcha.sadd('used', key)
         return cleaned_data

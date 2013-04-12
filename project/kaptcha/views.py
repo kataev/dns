@@ -1,9 +1,10 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from forms import CaptchaForm
+
 
 def home(request):
     """index.html"""
     form = CaptchaForm(request.POST or None)
     if form.is_valid():
         return redirect('/?s=1')
-    return render(request,'index.html',{'form':form,'success':request.GET.has_key('s')})
+    return render(request, 'index.html', {'form': form, 'success': request.GET.has_key('s')})
