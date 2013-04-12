@@ -6,7 +6,7 @@ from hashlib import sha256
 
 from django import forms
 
-from fields import CaptchaField
+from fields import CaptchaField,KeyField
 
 
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
@@ -36,17 +36,18 @@ class CaptchaForm(forms.Form):
         self.fields['captcha'].widget.text = hash
 
     text = forms.CharField()
-    key = forms.CharField(widget=forms.HiddenInput)
+    key = KeyField()
     captcha = CaptchaField()
 
     def clean(self):
         cleaned_data = super(CaptchaForm, self).clean()
-        key = cleaned_data.pop('key', '')
-        chash = cleaned_data.pop('captcha', '')
         if not self.errors:
+            key = cleaned_data.pop('key', '')
+            chash = cleaned_data.pop('captcha', '')
             if captcha.sismember('used', key):
                 raise forms.ValidationError('Captcha fail: alredy used')
             shash = get_hash(key)
+            print key, chash, shash
             if chash != shash:
                 key = get_key() # get new key and hash for new attempt
                 shash = get_hash(key)
